@@ -49,31 +49,33 @@ using \code{by2} or \code{plyr::dlply}.}
 \item{...}{additional named arguments to \code{fun}.}
 }
 \value{
-\describe{result of \code{fun} applied to each grouping of
+result of \code{fun} applied to each grouping of
   \code{data[vrb.nm]}. The structure of the return object depends on the
   arguments \code{rep} and \code{rtn.grp}.
 
-  \item{If \code{rep} = TRUE and \code{rtn.grp} = TRUE:}{then the return
+\describe{
+  \item{If rep = TRUE and rtn.grp = TRUE:}{then the return
   object is a data.frame with nrow = \code{nrow(data)} where the first
   columns are \code{data[grp.nm]} and the last column is the result of
   \code{fun} with colname = \code{rtn.result.nm}.}
 
-  \item{If \code{rep} = TRUE and \code{rtn.grp} = FALSE:}{then the return
+  \item{If rep = TRUE and rtn.grp = FALSE:}{then the return
   object is an atomic vector with length = \code{nrow(data)} where the values
   are the result of \code{fun} and the names = \code{row.names(data)}.}
 
-  \item{If \code{rep} = FALSE and code{rtn.grp} = TRUE:}{then the return
+  \item{If rep = FALSE and rtn.grp = TRUE:}{then the return
   object is a data.frame with nrow =
   \code{length(levels(interaction(data[grp.nm])))} where the first columns
   are the unique group combinations in \code{data[grp.nm]} and the last
   column is the result of \code{fun} with colname = \code{rtn.result.nm}.}
 
-  \item{If \code{rep} = FALSE and code{rtn.grp} = FALSE:}{then the return
+  \item{If rep = FALSE and rtn.grp = FALSE:}{then the return
   object is an atomic vector with length
   \code{length(levels(interaction(data[grp.nm])))} where the values are the
   result of \code{fun} and the names are each group value pasted together by
   \code{sep} if there are multiple grouping variables (i.e.,
-  \code{length(grp.nm)} > 2).} }
+  \code{length(grp.nm)} > 2).}
+ }
 }
 \description{
 \code{agg_dfm} evaluates a function on a set of variables in a data.frame

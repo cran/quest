@@ -4,44 +4,53 @@
 #'
 #' @description \code{quest} is a package for pre-processing questionnaire data
 #'   to get it ready for statistical modeling. It contains functions for
-#'   investigating missing data (e.g., \code{rowNA}), reshaping data (e.g.,
-#'   \code{wide2long}), validating responses (e.g., \code{revalids}), recoding
-#'   variables (e.g., \code{recodes}), scoring (e.g., \code{scores}), centering
-#'   (e.g., \code{centers}), aggregating (e.g., \code{aggs}), shifting (e.g.,
-#'   \code{shifts}), etc. Functions whose first phrases end with an \code{s} are
-#'   vectorized versions of their functions without an \code{s} at the end of
-#'   the first phrase. For example, \code{center} inputs a (atomic) vector and
-#'   outputs a atomic vector to center and/or scale a single variable;
-#'   \code{centers} inputs a data.frame and outputs a data.frame to center
-#'   and/or scale multiple variables. Functions that end in \code{_by} are
-#'   calculated by group. For example, \code{center} does grand-mean centering
-#'   while \code{center_by} does group-mean centering. Putting the two together,
-#'   \code{centers_by} inputs a data.frame and outputs a data.frame to center
-#'   and/or scale multiple variables by group. Functions that end in \code{_if}
-#'   are calculated dependent on the frequency of observed values (aka amount of
-#'   missing data). The \code{quest} package uses the \code{str2str} package
-#'   internally to convert R objects from one structure to another. See
-#'   \code{\link{str2str}} for details.
+#'   investigating missing data (e.g., \code{\link{rowNA}}), reshaping data
+#'   (e.g., \code{\link{wide2long}}), validating responses (e.g.,
+#'   \code{\link{revalids}}), recoding variables (e.g., \code{\link{recodes}}),
+#'   scoring (e.g., \code{\link{scores}}), centering (e.g.,
+#'   \code{\link{centers}}), aggregating (e.g., \code{\link{aggs}}), shifting
+#'   (e.g., \code{\link{shifts}}), etc. Functions whose first phrases end with
+#'   an \code{s} are vectorized versions of their functions without an \code{s}
+#'   at the end of the first phrase. For example, \code{center} inputs a
+#'   (atomic) vector and outputs a atomic vector to center and/or scale a single
+#'   variable; \code{centers} inputs a data.frame and outputs a data.frame to
+#'   center and/or scale multiple variables. Functions that end in \code{_by}
+#'   are calculated by group. For example, \code{center} does grand-mean
+#'   centering while \code{center_by} does group-mean centering. Putting the two
+#'   together, \code{centers_by} inputs a data.frame and outputs a data.frame to
+#'   center and/or scale multiple variables by group. Functions that end in
+#'   \code{_ml} calculate a "multilevel" result with a within-group result and
+#'   between-group result. Functions that end in \code{_if} are calculated
+#'   dependent on the frequency of observed values (aka amount of missing data).
+#'   The \code{quest} package uses the \code{str2str} package internally to
+#'   convert R objects from one structure to another. See \code{\link{str2str}}
+#'   for details.
 #'
-#' @section Types of functions: There are two main types of functions. 1) Helper
-#'   functions that primarily exist to save a few lines of code and are
-#'   primarily for convenience (e.g., \code{vecNA}). 2) Functions for wrangling
-#'   questionnaire data (e.g., \code{nom2dum}, \code{reverses}).
+#' @section Types of functions: There are three main types of functions. 1)
+#'   Helper functions that primarily exist to save a few lines of code and are
+#'   primarily for convenience (e.g., \code{\link{vecNA}}). 2) Functions for
+#'   wrangling questionnaire data (e.g., \code{\link{nom2dum}},
+#'   \code{\link{reverses}}). 3) Functions for preliminary statistical
+#'   calculation (e.g., \code{\link{means_diff}}, \code{\link{corp_by}}).
 #'
-#' @section Abbreviations: \describe{See the table below
-#'    \item{nm}{names}
-#'    \item{ov}{observed values}
-#'    \item{NA}{missing values}
-#'    \item{prop}{proportion}
-#'    \item{sep}{separator}
+#' @section Abbreviations: See the table below
+#'
+#' \describe{
 #'    \item{vrb}{variable}
 #'    \item{grp}{group}
+#'    \item{nm}{names}
+#'    \item{NA}{missing values}
+#'    \item{ov}{observed values}
+#'    \item{prop}{proportion}
+#'    \item{sep}{separator}
+#'    \item{cor}{correlations}
 #'    \item{id}{identifier}
 #'    \item{rtn}{return}
 #'    \item{fun}{function}
 #'    \item{dfm}{data.frame}
 #'    \item{fct}{factor}
 #'    \item{nom}{nominal variable}
+#'    \item{bin}{binary variable}
 #'    \item{dum}{dummy variable}
 #'    \item{pomp}{percentage of maximum possible}
 #'    \item{std}{standardize}
@@ -51,10 +60,7 @@
 #'
 #' @import datasets stats utils methods
 #'
-#' @docType package
-#'
-#' @name quest
-NULL
+"_PACKAGE"
 
 # MISC ####
 
@@ -783,7 +789,7 @@ make.dumNA <- function(data, vrb.nm, ov = FALSE, rtn.lgl = FALSE, suffix = "_m")
 #' @export
 vecNA <- function(x, prop = FALSE, ov = FALSE) {
 
-   if (!(is.vector(x)))
+   if (!(str2str::is.avector(x) | is.vector(x))) # to allow for attributes
       vec <- as.vector(x) # methods depends on input
    else
       vec <- x
@@ -1083,7 +1089,8 @@ rowsNA <- function(data, vrb.nm.list, prop = FALSE, ov = FALSE) {
 #' logical vector or integer indices instead of names. However, it is convenient
 #' to be able to subset the return object fully by names.
 #'
-#' @param x atomic vector
+#' @param x atomic vector or list vector. If not a vector, it will be coerced to
+#'   a vector via \code{\link{as.vector}}.
 #'
 #' @param exclude unique values of \code{x} to exclude from the returned table.
 #'   If NULL, then missing values are always included in the returned table. See
@@ -1159,7 +1166,8 @@ freq <- function(x, exclude = if (useNA == "no") c(NA, NaN),
    useNA = "always", prop = FALSE, sort = "frequency", decreasing = TRUE,
    na.last = TRUE) {
 
-   if (!(is.vector(x))) stop("`x` must be a vector")
+   if (!(str2str::is.avector(x) | is.vector(x))) # to allow for attributes
+      x <- as.vector(x) # methods depends on input
    useNA <- match.arg(arg = useNA, choices = c("no","ifany","always"))
    sort <- match.arg(arg = sort, choices = c("alphanum","frequency","position"))
    tmp <- table(x, exclude = exclude, useNA = useNA)
@@ -3323,30 +3331,32 @@ centers_by <- function(data, vrb.nm, grp.nm, center = TRUE, scale = FALSE, suffi
 #'
 #' @param ... additional named arguments to \code{fun}.
 #'
-#' @return \describe{result of \code{fun} applied to \code{x} for each group
+#' @return result of \code{fun} applied to \code{x} for each group
 #'   within \code{grp}. The structure of the return object depends on the
-#'   arguments \code{rep} and \code{rtn.grp}.
+#'   arguments \code{rep} and \code{rtn.grp}:
 #'
-#'   \item{If \code{rep} = TRUE and \code{rtn.grp} = TRUE:}{then the return
+#' \describe{
+#'   \item{If rep = TRUE and rtn.grp = TRUE:}{then the return
 #'   object is a data.frame with nrow = \code{nrow(data)} where the first
 #'   columns are \code{grp} and the last column is the result of \code{fun}. If
 #'   \code{grp} is not a list with names, then its colnames will be "Group.1",
 #'   "Group.2", "Group.3" etc. similar to \code{aggregate}'s return object. The
 #'   colname for the result of \code{fun} will be "x".}
 #'
-#'   \item{If \code{rep} = TRUE and \code{rtn.grp} = FALSE:}{then the return
+#'   \item{If rep = TRUE and rtn.grp = FALSE:}{then the return
 #'   object is an atomic vector with length = \code{length(x)} where the values
 #'   are the result of \code{fun} and the names = \code{names(x)}.}
 #'
-#'   \item{If \code{rep} = FALSE and \code{rtn.grp} = TRUE:}{then the return
-#'   object is a data.frame with nrow = \code{length(levels(interaction(grp)))}
+#'   \item{If rep = FALSE and rtn.grp = TRUE:}{then the return
+#'   object is a data.frame with nrow =
+#'   \code{length(levels(interaction(grp)))}
 #'   where the first columns are the unique group combinations in \code{grp} and
 #'   the last column is the result of \code{fun}. If \code{grp} is not a list
 #'   with names, then its colnames will be "Group.1", "Group.2", "Group.3" etc.
 #'   similar to \code{aggregate}'s return object. The colname for the result of
 #'   \code{fun} will be "x".}
 #'
-#'   \item{If \code{rep} = FALSE and code{rtn.grp} = FALSE:}{then the return
+#'   \item{If rep = FALSE and rtn.grp = FALSE:}{then the return
 #'   object is an atomic vector with length
 #'   \code{length(levels(interaction(grp)))} where the values are the result of
 #'   \code{fun} and the names are each group value pasted together by \code{sep}
@@ -3355,10 +3365,10 @@ centers_by <- function(data, vrb.nm, grp.nm, center = TRUE, scale = FALSE, suffi
 #' }
 #'
 #' @seealso
-#'    \code{aggs}
-#'    \code{agg_dfm}
-#'    \code{\link[stats]{ave}}
-#'    \code{\link[stats]{aggregate}}
+#'    \code{\link{aggs}},
+#'    \code{\link{agg_dfm}},
+#'    \code{\link[stats]{ave}},
+#'    \code{\link[stats]{aggregate}},
 #'
 #' @examples
 #'
@@ -3473,10 +3483,10 @@ agg <- function(x, grp, rep = TRUE, rtn.grp = !rep, sep = "_", fun, ...) {
 #'   columns are appended to the begining of the data.frame.
 #'
 #' @seealso
-#'    \code{agg}
-#'    \code{agg_dfm}
-#'    \code{\link[stats]{ave}}
-#'    \code{\link[stats]{aggregate}}
+#'    \code{\link{agg}},
+#'    \code{\link{agg_dfm}},
+#'    \code{\link[stats]{ave}},
+#'    \code{\link[stats]{aggregate}},
 #'
 #' @examples
 #' aggs(data = airquality, vrb.nm = c("Ozone","Solar.R"), grp.nm = "Month",
@@ -3626,31 +3636,33 @@ ave_dfm <- function(data, vrb.nm, grp.nm, fun, ...) {
 #'
 #' @param ... additional named arguments to \code{fun}.
 #'
-#' @return \describe{result of \code{fun} applied to each grouping of
+#' @return result of \code{fun} applied to each grouping of
 #'   \code{data[vrb.nm]}. The structure of the return object depends on the
 #'   arguments \code{rep} and \code{rtn.grp}.
 #'
-#'   \item{If \code{rep} = TRUE and \code{rtn.grp} = TRUE:}{then the return
+#' \describe{
+#'   \item{If rep = TRUE and rtn.grp = TRUE:}{then the return
 #'   object is a data.frame with nrow = \code{nrow(data)} where the first
 #'   columns are \code{data[grp.nm]} and the last column is the result of
 #'   \code{fun} with colname = \code{rtn.result.nm}.}
 #'
-#'   \item{If \code{rep} = TRUE and \code{rtn.grp} = FALSE:}{then the return
+#'   \item{If rep = TRUE and rtn.grp = FALSE:}{then the return
 #'   object is an atomic vector with length = \code{nrow(data)} where the values
 #'   are the result of \code{fun} and the names = \code{row.names(data)}.}
 #'
-#'   \item{If \code{rep} = FALSE and code{rtn.grp} = TRUE:}{then the return
+#'   \item{If rep = FALSE and rtn.grp = TRUE:}{then the return
 #'   object is a data.frame with nrow =
 #'   \code{length(levels(interaction(data[grp.nm])))} where the first columns
 #'   are the unique group combinations in \code{data[grp.nm]} and the last
 #'   column is the result of \code{fun} with colname = \code{rtn.result.nm}.}
 #'
-#'   \item{If \code{rep} = FALSE and code{rtn.grp} = FALSE:}{then the return
+#'   \item{If rep = FALSE and rtn.grp = FALSE:}{then the return
 #'   object is an atomic vector with length
 #'   \code{length(levels(interaction(data[grp.nm])))} where the values are the
 #'   result of \code{fun} and the names are each group value pasted together by
 #'   \code{sep} if there are multiple grouping variables (i.e.,
-#'   \code{length(grp.nm)} > 2).} }
+#'   \code{length(grp.nm)} > 2).}
+#'  }
 #'
 #' @seealso
 #'    \code{\link{agg}}

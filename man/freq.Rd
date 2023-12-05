@@ -15,7 +15,8 @@ freq(
 )
 }
 \arguments{
-\item{x}{atomic vector}
+\item{x}{atomic vector or list vector. If not a vector, it will be coerced to
+a vector via \code{\link{as.vector}}.}
 
 \item{exclude}{unique values of \code{x} to exclude from the returned table.
 If NULL, then missing values are always included in the returned table. See

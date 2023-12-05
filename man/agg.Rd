@@ -33,30 +33,32 @@ return an atomic vector of length 1.}
 \item{...}{additional named arguments to \code{fun}.}
 }
 \value{
-\describe{result of \code{fun} applied to \code{x} for each group
+result of \code{fun} applied to \code{x} for each group
   within \code{grp}. The structure of the return object depends on the
-  arguments \code{rep} and \code{rtn.grp}.
+  arguments \code{rep} and \code{rtn.grp}:
 
-  \item{If \code{rep} = TRUE and \code{rtn.grp} = TRUE:}{then the return
+\describe{
+  \item{If rep = TRUE and rtn.grp = TRUE:}{then the return
   object is a data.frame with nrow = \code{nrow(data)} where the first
   columns are \code{grp} and the last column is the result of \code{fun}. If
   \code{grp} is not a list with names, then its colnames will be "Group.1",
   "Group.2", "Group.3" etc. similar to \code{aggregate}'s return object. The
   colname for the result of \code{fun} will be "x".}
 
-  \item{If \code{rep} = TRUE and \code{rtn.grp} = FALSE:}{then the return
+  \item{If rep = TRUE and rtn.grp = FALSE:}{then the return
   object is an atomic vector with length = \code{length(x)} where the values
   are the result of \code{fun} and the names = \code{names(x)}.}
 
-  \item{If \code{rep} = FALSE and \code{rtn.grp} = TRUE:}{then the return
-  object is a data.frame with nrow = \code{length(levels(interaction(grp)))}
+  \item{If rep = FALSE and rtn.grp = TRUE:}{then the return
+  object is a data.frame with nrow =
+  \code{length(levels(interaction(grp)))}
   where the first columns are the unique group combinations in \code{grp} and
   the last column is the result of \code{fun}. If \code{grp} is not a list
   with names, then its colnames will be "Group.1", "Group.2", "Group.3" etc.
   similar to \code{aggregate}'s return object. The colname for the result of
   \code{fun} will be "x".}
 
-  \item{If \code{rep} = FALSE and code{rtn.grp} = FALSE:}{then the return
+  \item{If rep = FALSE and rtn.grp = FALSE:}{then the return
   object is an atomic vector with length
   \code{length(levels(interaction(grp)))} where the values are the result of
   \code{fun} and the names are each group value pasted together by \code{sep}
@@ -109,8 +111,8 @@ agg(x = mtcars$"mpg", grp = mtcars[tmp_nm], rep = FALSE, rtn.grp = FALSE,
 
 }
 \seealso{
-\code{aggs}
-   \code{agg_dfm}
-   \code{\link[stats]{ave}}
-   \code{\link[stats]{aggregate}}
+\code{\link{aggs}},
+   \code{\link{agg_dfm}},
+   \code{\link[stats]{ave}},
+   \code{\link[stats]{aggregate}},
 }

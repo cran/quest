@@ -80,8 +80,8 @@ aggs(data = mtcars, vrb.nm = c("mpg","cyl","disp"), grp.nm = c("vs","am"),
    rep = FALSE, rtn.grp = FALSE, fun = mean, na.rm = TRUE) # without returning groups
 }
 \seealso{
-\code{agg}
-   \code{agg_dfm}
-   \code{\link[stats]{ave}}
-   \code{\link[stats]{aggregate}}
+\code{\link{agg}},
+   \code{\link{agg_dfm}},
+   \code{\link[stats]{ave}},
+   \code{\link[stats]{aggregate}},
 }
